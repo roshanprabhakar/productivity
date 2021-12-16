@@ -18,15 +18,31 @@ Productivity / day
 --------------------
 Needed functionality
 --------------------
+GOAL object
 - notion of GOAL: 
 	- priority level
 	- approximate time commitment
 	- due date (must support none)
 
-- easily craete and store new goals
+// Priority TODO
+- scheduling goals for the future
+- convert from human readable due date to long
+- standard priority values (look into enums)
+- update goal (i.e. progress signal)
+- "Banner" goals -- goals that need to be pinned without expiry
+	- closing banner goals
+
+- easily craete and store new goals through IO processes
+
+
+
 - easily log goal completion
 
 - propose best set of goals to attempt any given day
+
+Fill free time with queue items:
+- queue sorted by priority, then due date
+
 
 - automatically log unproductive hours from screen time
 - provide ease of logging time for wake up, sleep, lunch, dinner
