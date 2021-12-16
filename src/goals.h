@@ -7,6 +7,12 @@
 const extern int MAX_GOAL_SIZE;
 
 
+// Priority levels
+/* KEEP refers to goals that are intentionally left incomplete
+ */
+enum priority_levels {URGENT = 0, WORK = 10, PERSONAL = 20, MENIAL = 30, KEEP = 40};
+
+
 typedef struct {
 	char* label;
 	double hrs_commit;
@@ -23,15 +29,18 @@ typedef struct list_elem {
 	struct list_elem* next;
 } glist_t;
 
+
 /* parsing api
  */
 double commitment(char* arg);
 unsigned long due(char* arg);
 
+
 /* Generates dynamically allocated goal_t object from respective elements.
  */
 goal_t* create_goal(char* goal, double commitment, unsigned long due, int priority);
 goal_t* parse_goal(char* goal, char* commitment, char* due, char* priority);
+
 
 /* Creates dynamically allocated goal_t from a given string representing the 
  * the following sequential data with no null padding:

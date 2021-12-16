@@ -24,11 +24,12 @@ GOAL object
 	- approximate time commitment
 	- due date (must support none)
 
-// Priority TODO
+// TODO
 - scheduling goals for the future
-- convert from human readable due date to long
-- standard priority values (look into enums)
+- convert from human readable due date to long // DONE
+- standard priority values (look into enums) // 
 - update goal (i.e. progress signal)
+- evolving priority values
 - "Banner" goals -- goals that need to be pinned without expiry
 	- closing banner goals
 
