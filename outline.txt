@@ -1,0 +1,35 @@
+------------------
+Productivity / day
+------------------
+- completing set goals
+	* how many goals were you able to remove from the queue
+	* how many goals could you have removed from the queue
+- resisting unproductive temptations
+  - hours spent on:
+	- tiktok
+	- clash royale
+	- chrome
+- conforming to schedule by specified hours -- earlier contributes positively, later contributes negatively
+	- wake up by 9
+	- sleep by 1
+	- lunch by 1:30
+	- dinner by 7
+
+--------------------
+Needed functionality
+--------------------
+- notion of GOAL: 
+	- priority level
+	- approximate time commitment
+	- due date (must support none)
+
+- easily craete and store new goals
+- easily log goal completion
+
+- propose best set of goals to attempt any given day
+
+- automatically log unproductive hours from screen time
+- provide ease of logging time for wake up, sleep, lunch, dinner
+
+- generate report on day-to-day growth
+
