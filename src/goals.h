@@ -1,23 +1,19 @@
-#include <string.h>
+#ifndef GOALS
+#define GOALS
+
+#include <stdbool.h>
 #include <stdlib.h>
-#include <stdio.h>
+#include <time.h>
 
-
-#define MAX_LABEL_SIZE 100
-const extern int MAX_GOAL_SIZE;
-
-
-// Priority levels
-/* KEEP refers to goals that are intentionally left incomplete
- */
-enum priority_levels {URGENT = 0, WORK = 10, PERSONAL = 20, MENIAL = 30, KEEP = 40};
-
-
+// Banner goals carry irrelevant data in hrs_commit, due, priority
+// Banner goals are of priority Banner, no designated int value
 typedef struct {
 	char* label;
 	double hrs_commit;
-	unsigned long due;
+	time_t due;
 	int priority;
+	bool is_banner;
+	int ID;
 } goal_t;
 
 
@@ -30,16 +26,24 @@ typedef struct list_elem {
 } glist_t;
 
 
-/* parsing api
+/* * * parsing api * * */
+
+/* converting a time interval to seconds, according to the implementation spec
  */
 double commitment(char* arg);
-unsigned long due(char* arg);
 
+/* converts a given human-readable time (according to spec) to unix epoch time
+ */
+time_t readable_to_epoch(char* arg);
+
+/* converts a given time_t to a human readable string (according to the spec)
+ */
+char* epoch_to_readable(time_t arg);
 
 /* Generates dynamically allocated goal_t object from respective elements.
  */
-goal_t* create_goal(char* goal, double commitment, unsigned long due, int priority);
-goal_t* parse_goal(char* goal, char* commitment, char* due, char* priority);
+goal_t* create_goal(char* goal, double commitment, time_t due, int priority, bool is_banner);
+goal_t* parse_goal(char* goal, char* commitment, char* due, char* priority, char* is_banner);
 
 
 /* Creates dynamically allocated goal_t from a given string representing the 
@@ -70,3 +74,5 @@ void write_goal(goal_t* g);
 /* --- debug tools --- */
 void dump_goal(goal_t* goal);
 void dump_glist(glist_t* list);
+
+#endif

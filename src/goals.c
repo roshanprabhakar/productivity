@@ -1,15 +1,16 @@
 #include <string.h>
 #include <stdlib.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
 #include <time.h>
+#include "constants.h"
 #include "goals.h"
 
-const int MAX_GOAL_SIZE = MAX_LABEL_SIZE + sizeof(double) + sizeof(unsigned long) + sizeof(int);
 
 void dump_goal(goal_t* goal) {
-	printf("[label: '%s'  priority: %d  commit: %lf  due: %lu]\n", goal->label,
-		goal->priority, goal->hrs_commit, goal->due);
+	printf("[ID: %d label: '%s'  priority: %d  commit: %lf  due: %lu banner: %d]\n", 
+		goal->ID, goal->label, goal->priority, goal->hrs_commit, (long) goal->due, goal->is_banner);
 }
 
 void dump_glist(glist_t* list) {
@@ -21,13 +22,16 @@ void dump_glist(glist_t* list) {
 	printf("----- END -----\n");
 }
 
+
 // requires a dynamically allocated char* goal
-goal_t* create_goal(char* goal, double commitment, unsigned long due, int priority) {
+// WARNING goal ID remains uninitialized
+goal_t* create_goal(char* goal, double commitment, time_t due, int priority, bool is_banner) {
 	goal_t* g = (goal_t*) malloc(sizeof(goal_t));
 	g->label = goal;
 	g->hrs_commit = commitment;
 	g->due = due;
 	g->priority = priority;
+	g->is_banner = is_banner;
 	return g;
 }
 
@@ -57,58 +61,49 @@ double commitment(char* str) {
 	return -1;
 }
 
-/* parse given timestamp into unix timestamp
- * argument is of form:
- * min(mi)/hr(h)/day(d)/(mon(mo) == 30d) (FLAGGED -d)
- * MO/DA/YEAR HR:MI (DEFAULT)
- * MO: 1-12
- * DA: 1-31
- * HR: 0-23
- * MI: 0-59
- */
-unsigned long due(char* str) {
-	char* dup1 = strdup(str);
-	void* dup2 = (void*) dup1;
-	char* tok = strsep(&dup1, " ");
-	if (!strcmp("-d", tok)) {
-		return (unsigned long)(time(0) + 60 * commitment(dup1));
-	}
-	free(dup2);
-	char* dup3 = strdup(str);
-	void* dup4 = (void*) dup3;
-	struct tm time;
-	time.tm_mon = atoi(strsep(&dup3, "/")) - 1;
-	time.tm_mday = atoi(strsep(&dup3, "/"));
-	time.tm_year = atoi(strsep(&dup3, " ")) - 1900;
-	time.tm_hour = atoi(strsep(&dup3, ":"));
-	time.tm_isdst = (time.tm_year % 4 == 0) ? 1 : -1;
-	time.tm_min = atoi(dup3);
-	time.tm_sec = 0;
-	free(dup4);
+//str: MO/DA/YEAR HR:MI
+time_t readable_to_epoch(char* str) {
+	char* minute = strdup(str);
+	char* block_start = minute;
+	char* year = strsep(&minute, " ");
+	char* month = strsep(&year, "/");
+	char* day = strsep(&year, "/");
+	char* hour = strsep(&minute, ":");
 	
-	//printf("parsed time: %d/%d/%d %d:%d\n", time.tm_mon + 1, time.tm_mday, 1900 + time.tm_year,
-	// 	time.tm_hour, time.tm_min);
-	
-	return mktime(&time);
+	time_t rawtime;
+	struct tm timeinfo;
+	timeinfo.tm_mon = atoi(month) - 1;
+	timeinfo.tm_mday = atoi(day);
+	timeinfo.tm_year = atoi(year) - 1900;
+	timeinfo.tm_hour = atoi(hour);
+	timeinfo.tm_min = atoi(minute);
+	timeinfo.tm_sec = 0;
+	rawtime = mktime(&timeinfo);
+
+	free(block_start);
+
+	return rawtime;
 }
 
-
-goal_t* parse_goal(char* goal, char* commitment, char* due, char* priority) {
-	return NULL;
+// WARNING returned string must be freed;
+char* epoch_to_readable(time_t time) {
+	return asctime(localtime(&time));
 }
 
-
-// elems present in order: int, long, double, char*, '\0'
+// elems present in order: bool, int, time_t, double, char*, '\0'
 // WARNING no checking can be done to ensure input validity
 goal_t* goal_from_string(char* str) {
 	goal_t* g = (goal_t*) malloc(sizeof(goal_t));
+	g->is_banner = *(bool*)str;
+	str += sizeof(bool);
 	g->priority = *(int*)str;
 	str += sizeof(int);
-	g->due = *(unsigned long*)str;
-	str += sizeof(unsigned long); 
+	g->due = *(time_t*)str;
+	str += sizeof(time_t); 
 	g->hrs_commit = *(double*)str;
 	str += sizeof(double);
 	g->label = strdup(str);
+
 	return g;
 }
 
@@ -116,17 +111,19 @@ goal_t* goal_from_string(char* str) {
 // WARNING this string is NOT null terminated
 char* string_from_goal(goal_t* g) {
 	int i1 = 0;
-	int i2 = i1 + sizeof(int);
-	int i3 = i2 + sizeof(unsigned long);
-	int i4 = i3 + sizeof(double);
-	int i5 = i4 + strlen(g->label);
+	int i2 = i1 + sizeof(bool);
+	int i3 = i2 + sizeof(int);
+	int i4 = i3 + sizeof(time_t);
+	int i5 = i4 + sizeof(double);
+	int i6 = i5 + strlen(g->label);
 
 	char* buf = malloc(i5 + 1);
-	*(int*)(buf + i1) = g->priority;
-	*(unsigned long*)(buf + i2) = g->due;
-	*(double*)(buf + i3) = g->hrs_commit;
-	strcpy((char*)(buf + i4), g->label);
-	buf[i5] = '\0';
+	*(bool*)(buf + i1) = g->is_banner;
+	*(int*)(buf + i2) = g->priority;
+	*(time_t*)(buf + i3) = g->due;
+	*(double*)(buf + i4) = g->hrs_commit;
+	strcpy((char*)(buf + i5), g->label);
+	buf[i6] = '\0';
 
 	return buf;
 }
@@ -136,9 +133,9 @@ void write_goal(goal_t* g) {
 		printf("attempted to write null goal\n");
 	}
 	char* str = string_from_goal(g);
-	FILE* f = fopen("res/goals", "a");
+	FILE* f = fopen(goals_src, "a");
 	int tok = 0;
-	for (;tok < sizeof(int) + sizeof(unsigned long) + sizeof(double);tok++) {
+	for (;tok < sizeof(bool) + sizeof(int) + sizeof(time_t) + sizeof(double);tok++) {
 		fputc(str[tok], f);
 	}
 	fputs(str + tok, f);
@@ -153,8 +150,9 @@ goal_t* read_goal(FILE** f) {
 	goal_t* g = malloc(sizeof(goal_t));
 	
 	// read fixed-size data
-	if (fread(&(g->priority), 1, sizeof(int), *f) < sizeof(int) ||
-			fread(&(g->due), 1, sizeof(unsigned long), *f) < sizeof(unsigned long) ||
+	if (fread(&(g->is_banner), 1, sizeof(bool), *f) < sizeof(bool) ||
+			fread(&(g->priority), 1, sizeof(int), *f) < sizeof(int) ||
+			fread(&(g->due), 1, sizeof(time_t), *f) < sizeof(time_t) ||
 			fread(&(g->hrs_commit), 1, sizeof(double), *f) < sizeof(double)) {
 		free(g);
 		return NULL;
@@ -173,11 +171,13 @@ goal_t* read_goal(FILE** f) {
 }
 
 glist_t* read_goals() {
-	FILE* f = fopen("res/goals", "r");
+	FILE* f = fopen(goals_src, "r");
 
 	glist_t* list = NULL;
 	goal_t* g;
+	int gID = 0;
 	while ((g = read_goal(&f)) != NULL) {
+		g->ID = gID;
 		glist_t* g_elem = calloc(sizeof(glist_t), 1);
 		g_elem->cur = g;
 		if (list == NULL) {
@@ -196,6 +196,7 @@ glist_t* read_goals() {
 			}
 			g_elem->next = cur;
 		}
+		gID++;
 	}
 	return list;
 }
