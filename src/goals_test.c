@@ -24,18 +24,27 @@ void unit_convert_commitment() {
 	out = commitment("-3d");
 	printf("%lf : %lf\n", out, -3.0 * 24 * 60);
 	printf("}\n");
+
+	printf("\ndouble -> string: {\n");
+	double list[4] = {1.1111, 24.55, 0.5, 0.1};
+	for (int i = 0; i < sizeof(list) / sizeof(list[0]); i++) {
+		char* str = commitment_to_str(list[i]);
+		printf("%lf : %s\n", list[i], str);
+		free(str);
+	}
+	printf("}\n");
 }
 
 // tests both ways
 void unit_convert_due_date() {
 	printf("\ndue (standard readable -> unix time_t) {\n");
 
-	char* test1 = "01/01/2022 10:00";
+	char* test1 = "06/18/2022 00:00";
 	time_t te = readable_to_epoch(test1);
 	char* tr = epoch_to_readable(te);
 	printf("original: %s\nepoch time: %ld\nconverted readable: %s\n", test1, (long)te, tr);
 
-	char* test2 = "06/19/2018 12:52";
+	char* test2 = "06/01/2022 12:00";
 	time_t te2 = readable_to_epoch(test2);
 	char* tr2 = epoch_to_readable(te2);
 	printf("original: %s\nepoch time: %ld\nconverted readable: %s\n", test2, (long)te2, tr2);
@@ -54,7 +63,8 @@ goal_t* unit_create_goal() {
 
 goal_t* unit_goal_from_string() {
 	printf("\ngoal_from_string {\nMust match:\n");
-	goal_t* g = unit_create_goal();
+	goal_t* g = create_goal("example goal 1", 1.5, (time_t) 10000000, 1, false);
+	dump_goal(g);
 	char* str = string_from_goal(g);
 	free(g);
 	goal_t* g1 = goal_from_string(str);
@@ -66,7 +76,7 @@ goal_t* unit_goal_from_string() {
 
 char* unit_string_from_goal() {
 	printf("\nstring_from_goal {\n");
-	goal_t* g = unit_create_goal();
+	goal_t* g = create_goal("example goal 1", 1.5, (time_t) 10000000, 1, false);
 	printf("recreated goal must match: \n");
 	dump_goal(g);
 	char* str = string_from_goal(g);
@@ -154,14 +164,13 @@ void unit_read() {
 }
 
 int main() {
-    unit_convert_commitment();
-    unit_convert_due_date();
-    unit_create_goal();
-    unit_goal_from_string();
-    unit_string_from_goal();
-    unit_read_list();
-	unit_write();
-	unit_read();
+	// unit_create_goal(); // WORKING
+    unit_convert_commitment(); // WORKING
+    // unit_convert_due_date(); // WORKING
+    // unit_goal_from_string(); // WORKING
+    // unit_string_from_goal(); // WORKING
+    // unit_read_list(); // WORKING
+	// unit_write(); // WORKING
+	// unit_read(); // WORKING
 	return 0;
 }
-

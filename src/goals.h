@@ -32,6 +32,11 @@ typedef struct list_elem {
  */
 double commitment(char* arg);
 
+/* convert a commitment time in hours to its string representation.
+ * The returned string must be freed.
+ */
+char* commitment_to_str(double hrs);
+
 /* converts a given human-readable time (according to spec) to unix epoch time
  */
 time_t readable_to_epoch(char* arg);

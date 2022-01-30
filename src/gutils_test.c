@@ -6,12 +6,25 @@
 #include "goals.h"
 #include "constants.h"
 
-/** 
- * Not in need of testing:
- * - update_goals
- * - clear_all
- * - 
- */
+void port_notes() {
+	// goal, commit, due, priority
+	goal_t* arr[12];
+	arr[0] = create_goal("plan workout regimen", 0.5, 1, 3, 1);
+	arr[1] = create_goal("Look into etherium block chain, how it differs from bitcoin", 3, 2, 3, 1);
+	arr[2] = create_goal("Look into smart contracts (+Uniswap)", 2, 3, 3, 1);
+	arr[3] = create_goal("Brush retainers", 0.5, 0, 2, 1);
+	arr[4] = create_goal("Buy shaving cream", 1, 0, 2, 0);
+	arr[5] = create_goal("Return genome book", 0.5, 50, 2, 0);
+	arr[6] = create_goal("Chart 4 year requirements, not including cs-track specific reqs", 2, 50, 5, 1);
+	arr[7] = create_goal("Look into pintos projects", 2, 50, 3, 1);
+	arr[8] = create_goal("Watch for gdb and valgrind updates for mac", 1, 50, 2, 0);
+	arr[9] = create_goal("Get book: Computer Systems: A Programmer's Perspective", 1, 50, 4, 0);
+	arr[10] = create_goal("Buy merch from the bookstore", 2, 50, 3, 0);
+	arr[11] = create_goal("Make appt for admission viewing", .25, 50, 3, 1);
+	for (int i = 0; i < sizeof(arr) / sizeof(arr[0]); i++) {
+		write_goal(arr[i]);
+	}
+}
 
 // depends on res containing at least 5 goal entries
 void unit_find_goal() {
@@ -20,12 +33,9 @@ void unit_find_goal() {
     glist_t* list = read_goals();
     for (int i = 1; i < 6; i++) {
         printf("finding id %d: ", i);
-        if (find_goal(list, i) != NULL) {
-            printf(" ...found!");
-        } else {
-            printf("NULL returned");
-            exit(1);
-        }
+		goal_t* g = find_goal(list, i);
+		if (g != NULL) printf(" ...found!\n");
+		else printf(" ...nonexistent entry\n");
     }
 
     printf("}\n");
@@ -42,6 +52,7 @@ void apply_change(goal_t* goal, int argc, char* args) {
 	printf("\n");
 	printf("updated goal:\n");
 	dump_goal(goal);
+	printf("\n");
 	free(argv);
 }
 
@@ -53,8 +64,9 @@ void unit_update_goal() {
 
 	printf("INITIAL GOAL: \n");
 	dump_goal(g);
+	printf("\n");
 
-	printf("time commitment...\n");
+	printf("setting time commitment...\n");
 	apply_change(g, 3, "gunit*-ca*10d");
 	apply_change(g, 3, "gunit*--commitment-append*-10d");
 	apply_change(g, 3, "gunit*-cs*2mi");
@@ -82,13 +94,15 @@ void unit_update_goal() {
 
 void unit_display_goals() {
 	printf("\ndisplay_goals {\n");
-	display_goals();
-	printf("}\n");
+	glist_t* goals = read_goals();
+	display_goals(goals);
+	printf("\n}\n");
 }
 
 int main() {
-	unit_find_goal();
-	unit_update_goal();
+	// unit_find_goal(); // WORKS
+	// unit_update_goal(); // WORKS
 	unit_display_goals();
+	//port_notes();
 	return 0;
 }

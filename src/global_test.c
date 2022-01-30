@@ -64,7 +64,7 @@ void unit_get_argv() {
 }
 
 int main() {
-    unit_extract_value();
-    unit_get_argv();
+    // unit_extract_value(); // WORKING
+    // unit_get_argv(); // WORKING
     return 0;
 }

@@ -61,31 +61,90 @@ double commitment(char* str) {
 	return -1;
 }
 
-//str: MO/DA/YEAR HR:MI
-time_t readable_to_epoch(char* str) {
-	char* minute = strdup(str);
-	char* block_start = minute;
-	char* year = strsep(&minute, " ");
-	char* month = strsep(&year, "/");
-	char* day = strsep(&year, "/");
-	char* hour = strsep(&minute, ":");
+char* commitment_to_str(double hrs) {
+	int day, hr, min;
+	char* str = NULL;
+	if (hrs < 24) {
+		hr = (int) hrs;
+		min = (int) ((hrs - (int) hrs) * 60);
 	
-	time_t rawtime;
-	struct tm timeinfo;
-	timeinfo.tm_mon = atoi(month) - 1;
-	timeinfo.tm_mday = atoi(day);
-	timeinfo.tm_year = atoi(year) - 1900;
-	timeinfo.tm_hour = atoi(hour);
-	timeinfo.tm_min = atoi(minute);
-	timeinfo.tm_sec = 0;
-	rawtime = mktime(&timeinfo);
+		int hr_len = snprintf(NULL, 0, "%d", hr);
+		int min_len = snprintf(NULL, 0, "%d", min);
 
-	free(block_start);
+		str = calloc(hr_len + min_len + 9, 1);
+		char* write_i = str;
 
-	return rawtime;
+		if (hr) {
+			snprintf(write_i, hr_len + 1, "%d", hr);
+			write_i += hr_len;
+			strcpy(write_i, " hr ");
+			write_i += 4;
+		} if (min) {
+			snprintf(write_i, min_len + 1, "%d", min);	
+			write_i += min_len;
+			strcpy(write_i, " min");
+		}
+
+	} else {
+		day = (int) (hrs / 24);
+		hrs -= day * 24;
+		hr = (int) hrs;
+		min = (int) ((hrs - hr) * 60);
+
+		int day_len = snprintf(NULL, 0, "%d", day);
+		int hr_len = snprintf(NULL, 0, "%d", hr);
+		int min_len = snprintf(NULL, 0, "%d", min);
+
+		str = calloc(day_len + hr_len + min_len + 20, 1);
+		char* write_i = str;
+
+		if (day) {
+			snprintf(write_i, day_len + 1, "%d", day);	
+			write_i += day_len;
+			strcpy(write_i, " day ");
+			write_i += 5;
+		} if (hr) {
+			snprintf(write_i, hr_len + 1, "%d", hr);
+			write_i += hr_len;
+			strcpy(write_i, " hr ");
+			write_i += 4;
+		} if (min) {
+			snprintf(write_i, min_len + 1, "%d", min);
+			write_i += min_len;
+			strcpy(write_i, " min");
+		}
+	}
+	if (!strcmp(str, "")) {
+		strcpy(str, "0 min");
+	}
+	return str;
 }
 
-// WARNING returned string must be freed;
+//str: MO/DA/YEAR HR:MI
+time_t readable_to_epoch(char* str) {
+	int mo, da, yr, hr, mi;
+	sscanf(str, "%d/%d/%d %d:%d", &mo, &da, &yr, &hr, &mi);
+	
+	struct tm timeinfo;
+	time_t out;
+	timeinfo.tm_mon = mo - 1;
+	timeinfo.tm_mday = da;
+	timeinfo.tm_year = yr - 1900;
+	timeinfo.tm_hour = hr;
+	timeinfo.tm_min = mi;
+	timeinfo.tm_sec = 0;
+	timeinfo.tm_isdst = (yr % 4 == 0) ? 1 : 0;
+	timeinfo.tm_yday = -1;
+	timeinfo.tm_wday = -1;
+
+	setenv("TZ", "", 1);
+	tzset();
+	out = mktime(&timeinfo);
+	return out;
+}
+
+// WARNING returned string must NOT be freed;
+// returns size 24 string
 char* epoch_to_readable(time_t time) {
 	return asctime(localtime(&time));
 }

@@ -6,7 +6,7 @@
 #include "constants.h"
 
 const int MAX_LABEL_SIZE = 100;
-const int MAX_PRINT_SIZE = 150;
+const int MAX_PRINT_SIZE = 70;
 const int MAX_GOAL_SIZE = MAX_LABEL_SIZE + sizeof(int) + sizeof(bool) + sizeof(double) + sizeof(time_t);
 
 const unsigned int MAX_INLINE_ARGS = 20;
@@ -26,7 +26,7 @@ void* extract_value(int argc, char* argv[], char* flag, char type) {
 				val = malloc(sizeof(char));
 				*(char*)val = argv[i + 1][0];
 			} else if (type == 's') {  // string
-				val = malloc(strlen(argv[i + 1] + 1));
+				val = malloc(strlen(argv[i + 1]) + 1);
 				((char*)val)[strlen(argv[i + 1])] = '\0';
 				strcpy(val, argv[i + 1]);
 			} else if (type == 'b') {  // bool
