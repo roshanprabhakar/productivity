@@ -1,6 +1,0 @@
-Goal Definition - goals.h
-Goal private functions - goals.c
-
-Working with goals and glists - gutils.[ch]
-
-Program constants and globally necessary functions

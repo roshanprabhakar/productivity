@@ -22,8 +22,12 @@ void update_goal(goal_t* goal, int arc, char* argv[]);
  */
 void close_goal(glist_t* goals, int id);
 
-/* Writing goal data to console */
-void display_goals();
-void pretty_print(goal_t*, int);
+/* Display formatted list of all goals
+ */
+void display_goals(glist_t* goals);
+
+/* Display formatted list of single goal data
+ */
+void display_goal(goal_t* goal);
 
 #endif

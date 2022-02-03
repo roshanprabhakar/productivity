@@ -1,6 +1,7 @@
 #ifndef GOALS
 #define GOALS
 
+#include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <time.h>
@@ -17,8 +18,7 @@ typedef struct {
 } goal_t;
 
 
-/* The fundamental data structure behind goal management: this structure 
- * stores the data needed for goal manipulation.
+/* The fundamental data structure behind goal management
  */
 typedef struct list_elem {
 	goal_t* cur;
@@ -65,10 +65,12 @@ char* string_from_goal(goal_t* g);
 
 
 /* Generates a list of goal objects sorted in priority order.
- * TODO secondary sort by due date, etc.
  */
 glist_t* read_goals();
 
+/* Free a heap-allocated read list
+ */
+void close_list(glist_t* goals);
 
 /* File IO
  */

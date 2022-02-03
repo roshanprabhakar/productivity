@@ -8,8 +8,9 @@
 
 void port_notes() {
 	// goal, commit, due, priority
+	clear_all();
 	goal_t* arr[12];
-	arr[0] = create_goal("plan workout regimen", 0.5, 1, 3, 1);
+	arr[0] = create_goal("plan workout regimen", 10.1, 1, 0, 1);
 	arr[1] = create_goal("Look into etherium block chain, how it differs from bitcoin", 3, 2, 3, 1);
 	arr[2] = create_goal("Look into smart contracts (+Uniswap)", 2, 3, 3, 1);
 	arr[3] = create_goal("Brush retainers", 0.5, 0, 2, 1);
@@ -99,10 +100,16 @@ void unit_display_goals() {
 	printf("\n}\n");
 }
 
+void unit_display_goal() {
+	glist_t* list = read_goals();
+	display_goal(list->cur);
+}
+
 int main() {
 	// unit_find_goal(); // WORKS
 	// unit_update_goal(); // WORKS
-	unit_display_goals();
-	//port_notes();
+	port_notes(); // WORKS
+	unit_display_goals(); // WORKS
+	unit_display_goal();
 	return 0;
 }

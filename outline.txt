@@ -27,16 +27,12 @@ GOAL object
 // TODO
 - scheduling goals for the future
 - convert from human readable due date to long // DONE
-- standard priority values (look into enums) // 
-- update goal (i.e. progress signal)
-- evolving priority values
+- standard priority values (look into enums) // DONE
+- update goal (i.e. progress signal) // DONE
 - "Banner" goals -- goals that need to be pinned without expiry
 	- closing banner goals
 
 - easily craete and store new goals through IO processes
-
-
-
 - easily log goal completion
 
 - propose best set of goals to attempt any given day
@@ -50,10 +46,9 @@ Fill free time with queue items:
 
 - generate report on day-to-day growth
 
+--------------
+USER INTERFACE
+--------------
 
------- TODO ------
-- fix epoch time -> string conversion
-- fix string -> epoch time conversion
-- fix display
-
-
+display all goals
+close goal

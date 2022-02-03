@@ -2,12 +2,15 @@
 #define CONSTANTS
 
 /* PROJECT WIDE CONSTANTS */
-extern const unsigned int MAX_INLINE_ARGS;
+extern const char* HOME_DIR;
 extern const char* goals_src;
 
+extern const unsigned int MAX_INLINE_ARGS;
 extern const int MAX_LABEL_SIZE;
 extern const int MAX_PRINT_SIZE;
 extern const int MAX_GOAL_SIZE;
+
+extern const time_t WARNING_TIME;
 
 // Priority levels
 /* KEEP designated for goals intentially left incomplete

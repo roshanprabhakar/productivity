@@ -83,6 +83,7 @@ char* commitment_to_str(double hrs) {
 			snprintf(write_i, min_len + 1, "%d", min);	
 			write_i += min_len;
 			strcpy(write_i, " min");
+			write_i += 4;
 		}
 
 	} else {
@@ -112,6 +113,7 @@ char* commitment_to_str(double hrs) {
 			snprintf(write_i, min_len + 1, "%d", min);
 			write_i += min_len;
 			strcpy(write_i, " min");
+			write_i += 4;
 		}
 	}
 	if (!strcmp(str, "")) {
@@ -146,7 +148,11 @@ time_t readable_to_epoch(char* str) {
 // WARNING returned string must NOT be freed;
 // returns size 24 string
 char* epoch_to_readable(time_t time) {
-	return asctime(localtime(&time));
+	char* str = asctime(localtime(&time));
+	for (int i = 0; i < strlen(str); i++) {
+		if (str[i] == '\n') str[i] = ' ';
+	}
+	return str;
 }
 
 // elems present in order: bool, int, time_t, double, char*, '\0'
@@ -258,5 +264,15 @@ glist_t* read_goals() {
 		gID++;
 	}
 	return list;
+}
+
+void close_list(glist_t* list) {
+	glist_t* cur = list;
+	glist_t* next = list->next;
+	while (cur != NULL) {
+		free(cur);
+		cur = next;
+		if (next != NULL) next = next->next;
+	}
 }
 

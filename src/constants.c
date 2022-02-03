@@ -6,12 +6,13 @@
 #include "constants.h"
 
 const int MAX_LABEL_SIZE = 100;
-const int MAX_PRINT_SIZE = 70;
+const int MAX_PRINT_SIZE = 80;
 const int MAX_GOAL_SIZE = MAX_LABEL_SIZE + sizeof(int) + sizeof(bool) + sizeof(double) + sizeof(time_t);
 
 const unsigned int MAX_INLINE_ARGS = 20;
 const char* goals_src = "res/goals";
 
+const time_t WARNING_TIME = 6 * 60 * 60;
 
 // returns malloc'd void*
 // argc is count of space-separated tokens

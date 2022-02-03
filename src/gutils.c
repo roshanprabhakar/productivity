@@ -36,28 +36,82 @@ void close_goal(glist_t* goals, int id) {
 	return;
 }
 
-void divide(int width) {
+void divide(int width, int color) {
+	printf("\x1b[%dm", color);
 	printf("+");
 	for (int i = 0; i < width; i++) printf("-");
 	printf("+\n");
+	printf("\033[0m");
 }
 
+// banner time commitments rounded down to the nearest largest denominator time measurement
 void display_goals(glist_t* list) {
-	divide(MAX_PRINT_SIZE - 2);
+	time_t now = time(0);
+	divide(MAX_PRINT_SIZE - 2, 34);
 	glist_t* cur = list;
 	while (cur != NULL) {
 		if (cur->cur->is_banner) {
-			printf("%s\t", commitment_to_str(cur->cur->hrs_commit));
-			printf("%d\t", cur->cur->ID);
-			printf("%s\n", cur->cur->label);
+			char* commit = commitment_to_str(cur->cur->hrs_commit);
+			printf("\x1b[%dm", 32);
+			printf("   %d\t", cur->cur->ID);
+			printf("\x1b[%dm", 36);
+			printf("%.6s\t", commit);
+			printf("\033[0m");
+			printf("%.80s\n", cur->cur->label);
+			free(commit);
 		}
 		cur = cur->next;
 	}
-	divide(MAX_PRINT_SIZE - 2);
+	divide(MAX_PRINT_SIZE - 2, 34);
+	printf("\n");
+	cur = list;
+	while (cur != NULL) {
+		if (!cur->cur->is_banner) {
+			char* commit = commitment_to_str(cur->cur->hrs_commit);
+			printf("\x1b[%dm", 32);
+			printf("   %d\t", cur->cur->ID);
+			if (cur->cur->due - now < WARNING_TIME) {
+				printf("\x1b[%dm", 31);
+			} else {
+				printf("\x1b[%dm", 35);
+			}
+			printf("%s\t ", epoch_to_readable(cur->cur->due));
+			printf("\x1b[%dm", 36);
+			printf("%s\n", commit);
+			printf("\033[0m");
+			printf("\t%.100s\n", cur->cur->label);
+			free(commit);
+			// divide(MAX_PRINT_SIZE / 2 - 1);
+			printf("\n");
+		}
+		cur = cur->next;
+	}
+	divide(MAX_PRINT_SIZE - 2, 34);
 }
 
-
-
+void display_goal(goal_t* goal) {
+	divide(MAX_PRINT_SIZE / 2 - 1, 34);
+	printf("\x1b[%dm", 32);
+	printf("ID: \t\t%d\n", goal->ID);
+	printf("\x1b[%dm", 31);
+	printf("Priority: \t%d\n", goal->priority);
+	printf("\x1b[%dm", 35);
+	printf("Due date: \t%s\n", epoch_to_readable(goal->due));
+	printf("\x1b[%dm", 36);
+	char* commit = commitment_to_str(goal->hrs_commit);
+	printf("Commitment: \t%s\n\n", commit);
+	printf("\033[0m");
+	size_t len = strlen(goal->label);
+	for (int i = 0; i < len; i++) {
+		printf("%c", goal->label[i]);
+		if (i % (MAX_PRINT_SIZE / 2) == 0 && i != 0) {
+			printf("\n");
+		}
+	}
+	printf("\n");
+	free(commit);
+	divide(MAX_PRINT_SIZE / 2 - 1, 34);
+}
 
 
 /* SUPPORTED UPDATES
