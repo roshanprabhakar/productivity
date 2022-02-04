@@ -14,7 +14,7 @@ goal_t* find_goal(glist_t* list, int id);
 
 /* Update a goal according to argv configuration.
  */
-void update_goal(goal_t* goal, int arc, char* argv[]);
+void update_goal(goal_t* goal, int argc, char* argv[]);
 
 /* Mark a goal as comlete
  * - update progress

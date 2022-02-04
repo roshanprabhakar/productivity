@@ -179,7 +179,7 @@ int main() {
     // unit_convert_due_date(); // WORKING
     // unit_goal_from_string(); // WORKING
     // unit_string_from_goal(); // WORKING
-    // unit_read_list(); // WORKING
+    unit_read_list(); // WORKING
 	// unit_write(); // WORKING
 	// unit_read(); // WORKING
 	return 0;

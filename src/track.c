@@ -43,7 +43,11 @@ int main(int argc, char* argv[]) {
 
     if (!strcmp(argv[1], "display")) {
         display_goals(goals);
+    } else if (!strcmp(argv[1], "add")) {
+        add_goal(goals);
     }
+
+    
 
     // clean up resources
     free_list(goals);

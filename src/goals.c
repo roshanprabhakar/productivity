@@ -218,6 +218,7 @@ void write_goal(goal_t* g) {
 }
 
 // f assumed to point to start of goal object
+// TODO modify to dynamically read content
 goal_t* read_goal(FILE** f) {
 	goal_t* g = malloc(sizeof(goal_t));
 	
@@ -243,6 +244,46 @@ goal_t* read_goal(FILE** f) {
 	return g;
 }
 
+void insert_goal(goal_t* goal, glist_t** list) {
+	if (list == NULL) {
+		printf("no list passed\n");
+		return;
+	}
+	glist_t* g_elem = calloc(sizeof(glist_t), 1);
+	g_elem->cur = goal;
+	if (*list == NULL) {
+		*list = g_elem;
+		return;
+	} else {
+		glist_t* cur = *list;
+		glist_t* prev = NULL;
+		while (cur != NULL && cur->cur->priority < goal->priority) {
+			prev = cur;
+			cur = cur->next;
+		}
+		if (prev == NULL) {
+			*list = g_elem;
+		} else {
+			prev->next = g_elem;
+		}
+		g_elem->next = cur;
+	}
+}
+
+glist_t* read_goals() {
+	char* goals_src = goals_path();
+	FILE* f = fopen(goals_src, "r");
+	free(goals_src);
+
+	glist_t* list = NULL;
+	goal_t* g;
+	while ((g = read_goal(&f)) != NULL) {
+		insert_goal(g, &list);
+	}
+	return list;
+}
+
+/* FUNCTIONAL READ_GOALS
 glist_t* read_goals() {
 	char* goals_src = goals_path();
 	FILE* f = fopen(goals_src, "r");
@@ -272,6 +313,7 @@ glist_t* read_goals() {
 	}
 	return list;
 }
+*/
 
 void free_goal(goal_t* goal) {
 	free(goal->label);

@@ -4,8 +4,12 @@
 #include <unistd.h>
 #include <pwd.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <errno.h>
 #include "interface.h"
+#include "constants.h"
+#include "gutils.h"
+#include "goals.h"
 
 int init_sequence(const char* home_dir) {
     char config_path[strlen(home_dir) + 9 + 6 + 6];
@@ -53,12 +57,21 @@ int add_goal(glist_t* list) {
 
     goal_t* new_goal = calloc(sizeof(goal_t), 1);
 
-    char* line = malloc(0);
-    size_t cap = 0;
-    // ssize_t len = getline(&line, &cap, stdin);
-    getline(&line, &cap, stdin);
+    char* label = malloc(0);
+    size_t label_cap = 0;
+    getline(&label, &label_cap, stdin);
+    new_goal->label = label;
 
-    free(new_goal);
+    char* args = malloc(0);
+    size_t args_cap = 0;
+    getline(&args, &args_cap, stdin);
+
+    int argc;
+    char** argv = getargv(args, &argc, " ");
+    free(args);
+    update_goal(new_goal, argc, argv);
+    
+    insert_goal(new_goal, &list);
 
     return 0;
 }
