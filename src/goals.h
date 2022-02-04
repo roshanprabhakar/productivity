@@ -47,8 +47,8 @@ char* epoch_to_readable(time_t arg);
 
 /* Generates dynamically allocated goal_t object from respective elements.
  */
-goal_t* create_goal(char* goal, double commitment, time_t due, int priority, bool is_banner);
-goal_t* parse_goal(char* goal, char* commitment, char* due, char* priority, char* is_banner);
+goal_t* create_goal(char* goal, double commitment, time_t due, int priority, bool is_banner, int ID);
+goal_t* parse_goal(char* goal, char* commitment, char* due, char* priority, char* is_banner, char* ID);
 
 
 /* Creates dynamically allocated goal_t from a given string representing the 
@@ -68,9 +68,10 @@ char* string_from_goal(goal_t* g);
  */
 glist_t* read_goals();
 
-/* Free a heap-allocated read list
+/* Free heap resources
  */
-void close_list(glist_t* goals);
+void free_goal(goal_t* goal);
+void free_list(glist_t* goals);
 
 /* File IO
  */

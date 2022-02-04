@@ -7,10 +7,12 @@
 #include "goals.h"
 
 void clear_all() {
+	char* goals_src = goals_path();
 	FILE* f = fopen(goals_src, "w");
 	if (fclose(f)) {
 		printf("Could not clear %s\n", goals_src);
 	}
+	free(goals_src);
 }
  
 void update_goals(glist_t* new_goals) {
@@ -46,6 +48,10 @@ void divide(int width, int color) {
 
 // banner time commitments rounded down to the nearest largest denominator time measurement
 void display_goals(glist_t* list) {
+	if (list == NULL) {
+		printf("\tTODO list empty\n");
+		return;
+	}
 	time_t now = time(0);
 	divide(MAX_PRINT_SIZE - 2, 34);
 	glist_t* cur = list;

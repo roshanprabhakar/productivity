@@ -54,7 +54,7 @@ void unit_convert_due_date() {
 
 goal_t* unit_create_goal() {
 	printf("\ncreate_goal {\n");
-	goal_t* g = create_goal("example goal 1", 1.5, (time_t) 10000000, 1, false);
+	goal_t* g = create_goal("example goal 1", 1.5, (time_t) 10000000, 1, false, 1);
 	g->ID = 1;
 	dump_goal(g);
 	printf("}\n");
@@ -63,7 +63,7 @@ goal_t* unit_create_goal() {
 
 goal_t* unit_goal_from_string() {
 	printf("\ngoal_from_string {\nMust match:\n");
-	goal_t* g = create_goal("example goal 1", 1.5, (time_t) 10000000, 1, false);
+	goal_t* g = create_goal("example goal 1", 1.5, (time_t) 10000000, 1, false, 1);
 	dump_goal(g);
 	char* str = string_from_goal(g);
 	free(g);
@@ -76,7 +76,7 @@ goal_t* unit_goal_from_string() {
 
 char* unit_string_from_goal() {
 	printf("\nstring_from_goal {\n");
-	goal_t* g = create_goal("example goal 1", 1.5, (time_t) 10000000, 1, false);
+	goal_t* g = create_goal("example goal 1", 1.5, (time_t) 10000000, 1, false, 1);
 	printf("recreated goal must match: \n");
 	dump_goal(g);
 	char* str = string_from_goal(g);
@@ -106,23 +106,31 @@ void unit_read_list() {
 }
 
 void unit_write() {
+	clear_all();
+	char* goals_src = goals_path();
+
 	printf("\ncreate_goal {\n");
 
 	printf("writing: \n");
-	goal_t* g1 = create_goal("example goal 1", 1.1, (time_t) 123, 1, false);
+	goal_t* g1 = create_goal("example goal 1", 1.1, (time_t) 123, 1, false, 1);
+	g1->ID = 1;
 	dump_goal(g1);
 
-	goal_t* g2 = create_goal("example goal 2", 2.2, (time_t) 234, 2, false);
+	goal_t* g2 = create_goal("example goal 2", 2.2, (time_t) 234, 2, false, 2);
+	g2->ID = 2;
 	dump_goal(g2);
 
-	goal_t* g3 = create_goal("example goal 3", 3.3, (time_t) 345, 3, false);
+	goal_t* g3 = create_goal("example goal 3", 3.3, (time_t) 345, 3, false, 3);
+	g3->ID = 3;
 	dump_goal(g3);
 
-	goal_t* g4 = create_goal("example goal 4", 4.4, (time_t) 456, 3, false);
+	goal_t* g4 = create_goal("example goal 4", 4.4, (time_t) 456, 3, false, 4);
+	g4->ID = 4;
 	dump_goal(g4);
 
 	// wipe goals
 	FILE* f = fopen(goals_src, "w");
+	free(goals_src);
 	fclose(f);
 
 	// write created goals
@@ -151,8 +159,10 @@ void unit_write() {
 }
 
 void unit_read() {
+	char* goals_src = goals_path();
 	printf("\nread_goal {\n");
 	FILE* f = fopen(goals_src, "r");
+	free(goals_src);
 
 	goal_t* g;
 	while ((g = read_goal(&f)) != NULL) {
@@ -165,7 +175,7 @@ void unit_read() {
 
 int main() {
 	// unit_create_goal(); // WORKING
-    unit_convert_commitment(); // WORKING
+    // unit_convert_commitment(); // WORKING
     // unit_convert_due_date(); // WORKING
     // unit_goal_from_string(); // WORKING
     // unit_string_from_goal(); // WORKING

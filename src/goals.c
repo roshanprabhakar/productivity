@@ -25,13 +25,14 @@ void dump_glist(glist_t* list) {
 
 // requires a dynamically allocated char* goal
 // WARNING goal ID remains uninitialized
-goal_t* create_goal(char* goal, double commitment, time_t due, int priority, bool is_banner) {
+goal_t* create_goal(char* goal, double commitment, time_t due, int priority, bool is_banner, int ID) {
 	goal_t* g = (goal_t*) malloc(sizeof(goal_t));
 	g->label = goal;
 	g->hrs_commit = commitment;
 	g->due = due;
 	g->priority = priority;
 	g->is_banner = is_banner;
+	g->ID = ID;
 	return g;
 }
 
@@ -155,7 +156,7 @@ char* epoch_to_readable(time_t time) {
 	return str;
 }
 
-// elems present in order: bool, int, time_t, double, char*, '\0'
+// elems present in order: bool, int, time_t, double, int, char*, '\0'
 // WARNING no checking can be done to ensure input validity
 goal_t* goal_from_string(char* str) {
 	goal_t* g = (goal_t*) malloc(sizeof(goal_t));
@@ -167,40 +168,46 @@ goal_t* goal_from_string(char* str) {
 	str += sizeof(time_t); 
 	g->hrs_commit = *(double*)str;
 	str += sizeof(double);
+	g->ID = *(int*)str;
+	str += sizeof(int);
 	g->label = strdup(str);
 
 	return g;
 }
 
 // returns dynamically allocated string
-// WARNING this string is NOT null terminated
+// WARNING this string contains intermittent terminators
 char* string_from_goal(goal_t* g) {
 	int i1 = 0;
 	int i2 = i1 + sizeof(bool);
 	int i3 = i2 + sizeof(int);
 	int i4 = i3 + sizeof(time_t);
 	int i5 = i4 + sizeof(double);
-	int i6 = i5 + strlen(g->label);
+	int i6 = i5 + sizeof(int);
+	int i7 = i6 + strlen(g->label);
 
 	char* buf = malloc(i5 + 1);
 	*(bool*)(buf + i1) = g->is_banner;
 	*(int*)(buf + i2) = g->priority;
 	*(time_t*)(buf + i3) = g->due;
 	*(double*)(buf + i4) = g->hrs_commit;
-	strcpy((char*)(buf + i5), g->label);
-	buf[i6] = '\0';
+	*(int*)(buf + i5) = g->ID;
+	strcpy((char*)(buf + i6), g->label);
+	buf[i7] = '\0';
 
 	return buf;
 }
 
 void write_goal(goal_t* g) {
+	char* goals_src = goals_path();
 	if (g == NULL) {
 		printf("attempted to write null goal\n");
 	}
 	char* str = string_from_goal(g);
 	FILE* f = fopen(goals_src, "a");
+	free(goals_src);
 	int tok = 0;
-	for (;tok < sizeof(bool) + sizeof(int) + sizeof(time_t) + sizeof(double);tok++) {
+	for (;tok < sizeof(bool) + sizeof(int) + sizeof(time_t) + sizeof(double) + sizeof(int);tok++) {
 		fputc(str[tok], f);
 	}
 	fputs(str + tok, f);
@@ -218,7 +225,8 @@ goal_t* read_goal(FILE** f) {
 	if (fread(&(g->is_banner), 1, sizeof(bool), *f) < sizeof(bool) ||
 			fread(&(g->priority), 1, sizeof(int), *f) < sizeof(int) ||
 			fread(&(g->due), 1, sizeof(time_t), *f) < sizeof(time_t) ||
-			fread(&(g->hrs_commit), 1, sizeof(double), *f) < sizeof(double)) {
+			fread(&(g->hrs_commit), 1, sizeof(double), *f) < sizeof(double) ||
+			fread(&(g->ID), 1, sizeof(int), *f) < sizeof(int)) {
 		free(g);
 		return NULL;
 	}
@@ -236,13 +244,13 @@ goal_t* read_goal(FILE** f) {
 }
 
 glist_t* read_goals() {
+	char* goals_src = goals_path();
 	FILE* f = fopen(goals_src, "r");
+	free(goals_src);
 
 	glist_t* list = NULL;
 	goal_t* g;
-	int gID = 0;
 	while ((g = read_goal(&f)) != NULL) {
-		g->ID = gID;
 		glist_t* g_elem = calloc(sizeof(glist_t), 1);
 		g_elem->cur = g;
 		if (list == NULL) {
@@ -261,15 +269,21 @@ glist_t* read_goals() {
 			}
 			g_elem->next = cur;
 		}
-		gID++;
 	}
 	return list;
 }
 
-void close_list(glist_t* list) {
+void free_goal(goal_t* goal) {
+	free(goal->label);
+	free(goal);
+}
+
+void free_list(glist_t* list) {
+	if (list == NULL) return;
 	glist_t* cur = list;
 	glist_t* next = list->next;
 	while (cur != NULL) {
+		free_goal(cur->cur);
 		free(cur);
 		cur = next;
 		if (next != NULL) next = next->next;
